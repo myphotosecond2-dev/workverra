@@ -34,16 +34,20 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/workers", workerRoutes);
 
-// IMPORTANT: Railway-safe port handling
-const PORT = process.env.PORT || 5000 || 8080;
+// ✅ IMPORTANT: ONLY USE RAILWAY PORT
+const PORT = process.env.PORT;
 
-// Start only after DB connects
-connectDB()
-  .then(() => {
+// Start server safely
+const startServer = async () => {
+  try {
+    await connectDB();
+
     app.listen(PORT, "0.0.0.0", () => {
       console.log("🚀 Server running on port:", PORT);
     });
-  })
-  .catch((err) => {
-    console.error("❌ DB connection failed:", err.message);
-  });
+  } catch (err) {
+    console.error("❌ Server failed:", err.message);
+  }
+};
+
+startServer();
