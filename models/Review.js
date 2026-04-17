@@ -1,30 +1,14 @@
-const mongoose = require('mongoose')
+import mongoose from "mongoose";
 
-const reviewSchema = new mongoose.Schema({
-  booking: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Booking',
-    required: true,
+const reviewSchema = new mongoose.Schema(
+  {
+    booking: { type: mongoose.Schema.Types.ObjectId, ref: "Booking", required: true },
+    worker: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    employer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: String,
   },
-  worker: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  employer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  rating: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
-  },
-  comment: {
-    type: String,
-  },
-}, { timestamps: true })
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Review', reviewSchema)
+export default mongoose.model("Review", reviewSchema);

@@ -1,15 +1,9 @@
-const express = require('express')
-const router = express.Router()
+import express from "express";
+import { getWorkers, getWorkerById } from "../controllers/workerController.js";
 
-const {
-  getWorkers,
-  getWorkerById
-} = require('../controllers/workerController')
+const router = express.Router();
 
-// Get all workers (search + filter)
-router.get('/', getWorkers)
+router.get("/", getWorkers);
+router.get("/:id", getWorkerById);
 
-// Get single worker
-router.get('/:id', getWorkerById)
-
-module.exports = router
+export default router;

@@ -1,15 +1,19 @@
-const express = require('express')
-const router = express.Router()
+import express from "express";
+import {
+  createBooking,
+  getMyBookings,
+  acceptBooking,
+  rejectBooking,
+  completeBooking,
+} from "../controllers/bookingController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
-const bookingController = require('../controllers/bookingController')
-console.log("BOOKING CONTROLLER:", bookingController)
-const { protect } = require('../middleware/authMiddleware')
+const router = express.Router();
 
-router.post('/', protect, bookingController.createBooking)
-router.get('/', protect, bookingController.getMyBookings)
+router.post("/", protect, createBooking);
+router.get("/", protect, getMyBookings);
+router.put("/:id/accept", protect, acceptBooking);
+router.put("/:id/reject", protect, rejectBooking);
+router.put("/:id/complete", protect, completeBooking);
 
-router.put('/:id/accept', protect, bookingController.acceptBooking)
-router.put('/:id/reject', protect, bookingController.rejectBooking)
-router.put('/:id/complete', protect, bookingController.completeBooking)
-
-module.exports = router
+export default router;

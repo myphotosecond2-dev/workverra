@@ -1,14 +1,10 @@
-const express = require('express')
-const router = express.Router()
+import express from "express";
+import { createOrder, verifyPayment } from "../controllers/paymentController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
-const {
-  createOrder,
-  verifyPayment
-} = require('../controllers/paymentController')
+const router = express.Router();
 
-const { protect } = require('../middleware/authMiddleware')
+router.post("/create-order", protect, createOrder);
+router.post("/verify", protect, verifyPayment);
 
-router.post('/create-order', protect, createOrder)
-router.post('/verify', protect, verifyPayment)
-
-module.exports = router
+export default router;

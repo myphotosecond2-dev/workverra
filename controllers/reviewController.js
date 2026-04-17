@@ -1,37 +1,27 @@
-const Review = require('../models/Review')
-const Booking = require('../models/Booking')
+import Review from "../models/Review.js";
+import Booking from "../models/Booking.js";
 
-
-// ───────── CREATE REVIEW ─────────
-exports.createReview = async (req, res) => {
+export const createReview = async (req, res) => {
   try {
-    const { bookingId, rating, comment } = req.body
+    const { bookingId, rating, comment } = req.body;
 
     if (!bookingId || !rating) {
-      return res.status(400).json({ message: 'Booking and rating required' })
+      return res.status(400).json({ message: "Booking and rating required" });
     }
 
-    const booking = await Booking.findById(bookingId)
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' })
-    }
-
-    // ❗ Only employer can review
     if (booking.employer.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized' })
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    // ❗ Only after completion
-    if (booking.status !== 'completed') {
-      return res.status(400).json({ message: 'Complete booking first' })
+    if (booking.status !== "completed") {
+      return res.status(400).json({ message: "Complete booking first" });
     }
 
-    // ❗ Prevent duplicate review
-    const existing = await Review.findOne({ booking: bookingId })
-    if (existing) {
-      return res.status(400).json({ message: 'Review already submitted' })
-    }
+    const existing = await Review.findOne({ booking: bookingId });
+    if (existing) return res.status(400).json({ message: "Review already submitted" });
 
     const review = await Review.create({
       booking: bookingId,
@@ -39,30 +29,19 @@ exports.createReview = async (req, res) => {
       employer: booking.employer,
       rating,
       comment,
-    })
+    });
 
-    res.status(201).json({
-      success: true,
-      review,
-    })
-
+    res.status(201).json({ success: true, review });
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
-
-// ───────── GET WORKER REVIEWS ─────────
-exports.getWorkerReviews = async (req, res) => {
+export const getWorkerReviews = async (req, res) => {
   try {
-    const workerId = req.params.workerId
-
-    const reviews = await Review.find({ worker: workerId })
-      .populate('employer', 'name')
-
-    res.json(reviews)
-
+    const reviews = await Review.find({ worker: req.params.workerId }).populate("employer", "name");
+    res.json(reviews);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-}
+};
