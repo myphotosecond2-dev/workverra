@@ -1,25 +1,26 @@
-const express = require('express')
-const router = express.Router()
+import express from "express";
 
-const {
+const router = express.Router();
+
+import {
   sendOTPHandler,
   verifyOTPHandler,
   registerHandler,
   getMe
-} = require('../controllers/authController')
+} from "../controllers/authController.js";
 
-const { protect } = require('../middleware/authMiddleware')
+import { protect } from "../middleware/authMiddleware.js";
 
 // Send OTP
-router.post('/send-otp', sendOTPHandler)
+router.post("/send-otp", sendOTPHandler);
 
 // Verify OTP
-router.post('/verify-otp', verifyOTPHandler)
+router.post("/verify-otp", verifyOTPHandler);
 
-// Register user ✅ IMPORTANT
-router.post('/register', registerHandler)
+// Register user
+router.post("/register", registerHandler);
 
 // Get current user
-router.get('/me', protect, getMe)
+router.get("/me", protect, getMe);
 
-module.exports = router
+export default router;

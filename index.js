@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 
-// load env variables
 dotenv.config();
 
 const app = express();
@@ -11,7 +10,6 @@ const app = express();
 // middleware
 app.use(express.json());
 
-// allow frontend requests
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
@@ -19,10 +17,10 @@ app.use(
   })
 );
 
-// connect database
+// connect DB
 connectDB();
 
-// simple route to check server
+// test route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
@@ -40,10 +38,9 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/workers", workerRoutes);
 
-// port for railway
+// port
 const PORT = process.env.PORT || 5000;
 
-// start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
