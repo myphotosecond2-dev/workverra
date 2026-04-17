@@ -14,7 +14,7 @@ app.use(express.json());
 // allow frontend requests
 app.use(
   cors({
-    origin: "*", // later replace with your frontend URL
+    origin: process.env.FRONTEND_URL || "*",
     credentials: true,
   })
 );
