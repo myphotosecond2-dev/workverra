@@ -13,6 +13,7 @@ dotenv.config();
 
 const app = express();
 
+// ---------------- MIDDLEWARE ----------------
 app.use(express.json());
 
 app.use(
@@ -22,27 +23,31 @@ app.use(
   })
 );
 
-// Health check FIRST (very important)
+// ---------------- HEALTH CHECK ----------------
 app.get("/", (req, res) => {
   res.status(200).json({ status: "API is running" });
 });
 
-// Routes
+// ---------------- ROUTES ----------------
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/workers", workerRoutes);
 
-// SAFE START (Railway compatible)
-const PORT = process.env.PORT || 8080;
+// ---------------- START SERVER ----------------
+const PORT = process.env.PORT;
 
-const start = async () => {
+const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+    const server = app.listen(PORT, "0.0.0.0", () => {
+      console.log("🚀 Server running on port:", PORT);
+    });
+
+    server.on("error", (err) => {
+      console.error("Server error:", err);
     });
 
   } catch (err) {
@@ -51,4 +56,4 @@ const start = async () => {
   }
 };
 
-start();
+startServer();
