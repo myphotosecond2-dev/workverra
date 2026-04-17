@@ -1,17 +1,14 @@
 import express from "express";
-
-const router = express.Router();
-
 import {
   sendOTPHandler,
   verifyOTPHandler,
   registerHandler,
-  getMe
+  getMe,
 } from "../controllers/authController.js";
-
 import { protect } from "../middleware/authMiddleware.js";
 
-// routes
+const router = express.Router();
+
 router.post("/send-otp", sendOTPHandler);
 router.post("/verify-otp", verifyOTPHandler);
 router.post("/register", registerHandler);
