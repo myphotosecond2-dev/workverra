@@ -46,9 +46,9 @@ const startServer = async () => {
     // IMPORTANT: Railway provides PORT automatically
     const PORT = process.env.PORT;
 
-    const server = app.listen(PORT, "0.0.0.0", () => {
-      console.log("🚀 Server running on port:", PORT);
-    });
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("🚀 Server running on port:", PORT);
+});
 
     // Safety handlers
     server.on("error", (err) => {
