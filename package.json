@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Workverra Backend API",
   "main": "index.js",
+
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
+
   "dependencies": {
     "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
@@ -23,6 +25,7 @@
     "razorpay": "^2.9.6",
     "socket.io": "^4.7.4"
   },
+
   "devDependencies": {
     "nodemon": "^3.0.3"
   }
