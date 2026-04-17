@@ -22,9 +22,9 @@ app.use(
   })
 );
 
-// Health check
+// Health check FIRST (very important)
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.status(200).json({ status: "API is running" });
 });
 
 // Routes
@@ -34,26 +34,21 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/workers", workerRoutes);
 
-const startServer = async () => {
+// SAFE START (Railway compatible)
+const PORT = process.env.PORT || 8080;
+
+const start = async () => {
   try {
     await connectDB();
 
-    const PORT = process.env.PORT;
-
-    // ✅ IMPORTANT FIX: define server correctly
-    const server = app.listen(PORT, "0.0.0.0", () => {
-      console.log("🚀 Server running on port:", PORT);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running on port ${PORT}`);
     });
 
-    // optional safety
-    server.on("error", (err) => {
-      console.error("Server error:", err);
-    });
-
-  } catch (error) {
-    console.error("❌ Server failed to start:", error.message);
+  } catch (err) {
+    console.error("❌ Startup error:", err);
     process.exit(1);
   }
 };
 
-startServer();
+start();
