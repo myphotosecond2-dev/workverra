@@ -5,7 +5,6 @@ import { generateOTP, sendOTP } from "../utils/sendOTP.js";
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 
-// Normalize phone
 const normalizePhone = (phone) => {
   if (!phone) return "";
   return phone.toString().replace(/^\+91/, "").replace(/\D/g, "").slice(-10);
@@ -25,7 +24,6 @@ export const sendOTPHandler = async (req, res) => {
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     let user = await User.findOne({ phone });
-
     if (user) {
       user.otp = otp;
       user.otpExpiry = otpExpiry;
@@ -33,14 +31,7 @@ export const sendOTPHandler = async (req, res) => {
     } else {
       await User.findOneAndUpdate(
         { phone },
-        {
-          phone,
-          otp,
-          otpExpiry,
-          role: role || "employer",
-          name: "Pending",
-          city: "Pending",
-        },
+        { phone, otp, otpExpiry, role: role || "employer", name: "Pending", city: "" },
         { upsert: true, new: true }
       );
     }
@@ -67,14 +58,9 @@ export const verifyOTPHandler = async (req, res) => {
     phone = normalizePhone(phone);
 
     const user = await User.findOne({ phone });
-
     if (!user) return res.status(404).json({ message: "User not found" });
-
-    if (new Date() > user.otpExpiry)
-      return res.status(400).json({ message: "OTP expired" });
-
-    if (user.otp !== otp.toString())
-      return res.status(400).json({ message: "Invalid OTP" });
+    if (new Date() > user.otpExpiry) return res.status(400).json({ message: "OTP expired" });
+    if (user.otp !== otp.toString()) return res.status(400).json({ message: "Invalid OTP" });
 
     user.otp = undefined;
     user.otpExpiry = undefined;
@@ -82,12 +68,9 @@ export const verifyOTPHandler = async (req, res) => {
     await user.save();
 
     const token = generateToken(user._id);
+    const isNewUser = user.name === "Pending" || !user.name;
 
-    return res.status(200).json({
-      message: "OTP verified",
-      token,
-      user,
-    });
+    return res.status(200).json({ message: "OTP verified", token, user, isNewUser });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -96,31 +79,44 @@ export const verifyOTPHandler = async (req, res) => {
 // ── REGISTER ──
 export const registerHandler = async (req, res) => {
   try {
-    let { phone, name, role, city } = req.body;
+    let {
+      phone, name, role, city,
+      skill, skills, experience, hourlyRate, about,
+      companyName, companyType,
+    } = req.body;
 
     phone = normalizePhone(phone);
 
     let user = await User.findOne({ phone });
+    if (!user) user = new User({ phone });
 
-    if (!user) {
-      user = new User({ phone, name, role, city });
-    }
-
+    // Common fields
     user.name = name;
     user.role = role;
     user.city = city;
 
+    // Worker fields
+    if (role === "worker") {
+      if (skill)      user.skill      = skill;
+      if (skills)     user.skills     = skills;
+      if (experience) user.experience = Number(experience);
+      if (hourlyRate) user.hourlyRate = Number(hourlyRate);
+      if (about)      user.about      = about;
+      user.isAvailable = true;
+    }
+
+    // Employer fields
+    if (role === "employer") {
+      if (companyName) user.companyName = companyName;
+      if (companyType) user.companyType = companyType;
+    }
+
     await user.save();
 
     const token = generateToken(user._id);
-
-    return res.status(201).json({
-      message: "Registration successful",
-      token,
-      user,
-    });
+    return res.status(201).json({ message: "Registration successful", token, user });
   } catch (error) {
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
